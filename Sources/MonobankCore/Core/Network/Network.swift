@@ -13,10 +13,10 @@ final class Network {
     
     private let environment: Environment
     private let plugins: [PluginType]
-        
+    
     init(environment: Environment, keychain: KeychainService) {
         self.environment = environment
-        self.plugins = [AuthPlugin(keychain, environment)]
+        self.plugins = [AuthPlugin(keychain, environment), LogPlugin()]
     }
     
     func provider<Target: TargetType>()-> Provider<Target> {

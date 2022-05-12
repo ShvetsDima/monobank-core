@@ -1,5 +1,5 @@
 //
-//  API.swift
+//  TargetType+NeedAuth.swift
 //  Monobank
 //
 //  Created by Dima Shvets on 21.05.2021.

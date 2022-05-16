@@ -13,7 +13,7 @@ protocol DomainConvertible {
     func toEntity() -> EntityType
 }
 protocol DatabaseConvertible {
-    associatedtype ModelType: DomainConvertible
+    associatedtype ModelType: DomainConvertible, RealmFetchable
     var id: String { get }
     func toModel(context: Realm) -> ModelType
 }

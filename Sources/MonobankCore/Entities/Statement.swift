@@ -6,6 +6,7 @@
 //
 
 import Foundation
+import RealmSwift
 
 public struct Statement: Codable, Identifiable {
     public let id: String
@@ -24,3 +25,28 @@ public struct Statement: Codable, Identifiable {
     let counterEdrpou: String
     let counterIban: String
 }
+
+extension Statement: DatabaseConvertible {
+    func toModel(context: Realm) -> RMStatement {
+        .build { object in
+            object.id = id
+            object.time = time
+            object.statementDescription = description
+            object.mcc = mcc
+            object.hold = hold
+            object.amount = amount
+            object.operationAmount = operationAmount
+            object.currencyCode = currencyCode
+            object.commissionRate = commissionRate
+            object.cashbackAmount = cashbackAmount
+            object.balance = balance
+            object.comment = comment
+            object.receiptId = receiptId
+            object.counterEdrpou = counterEdrpou
+            object.counterIban = counterIban
+        }
+    }
+}
+
+
+

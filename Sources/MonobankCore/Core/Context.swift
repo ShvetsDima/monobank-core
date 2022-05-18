@@ -6,18 +6,19 @@
 //
 
 import Foundation
-import Moya
 
 final class Context {
 
     let environment: Environment
     let keychain: KeychainService
     let network: Network
+    let database: Database
     
     init(environment: Environment) {
         self.environment = environment
         self.keychain = KeychainService(environment.bundleID)
         self.network = Network(environment: environment, keychain: keychain)
+        self.database = RealmDatabase(bundleID: environment.bundleID)
     }
 
 }

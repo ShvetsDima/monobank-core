@@ -6,14 +6,14 @@
 //
 
 import Foundation
-import CoreData
+import RealmSwift
 
 protocol DomainConvertible {
     associatedtype EntityType
     func toEntity() -> EntityType
 }
 protocol DatabaseConvertible {
-    associatedtype ModelType: DomainConvertible
+    associatedtype ModelType: DomainConvertible, RealmFetchable
     var id: String { get }
-    func toModel() -> ModelType
+    func toModel(context: Realm) -> ModelType
 }

@@ -1,0 +1,7 @@
+sources:
+  - Sources/MonobankCore/Services/
+  - Sources/MonobankCore/Templates/Templates.swift
+templates:
+  - Sources/MonobankCore/Templates
+output:
+  Sources/MonobankCore/Generated

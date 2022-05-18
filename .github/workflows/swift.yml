@@ -1,4 +1,4 @@
-name: Swift
+name: Test
 
 on:
   push:
@@ -7,15 +7,80 @@ on:
     branches: [ develop, master ]
 
 jobs:
-  build:
-
+  macos_tests:
+    name: macOS Tests (SwiftPM)
     runs-on: macos-latest
+    strategy:
+      fail-fast: false
+      matrix:
+        xcode: ["13.3.1"]
 
     steps:
-    - uses: actions/checkout@v3
-    - name: Generate Code
-      run: sh build.sh
-    - name: Build Package
-      run: swift build -v
-    - name: Run tests
-      run: swift test -v
+      - uses: actions/checkout@v3
+
+      - name: Select Xcode ${{ matrix.xcode }}
+        run: sudo xcode-select --switch /Applications/Xcode_${{ matrix.xcode }}.app
+
+      - name: Generate Sources
+        run: sh build.sh
+
+      - name: Cache SwiftPM
+        uses: actions/cache@v3
+        with:
+          path: .build
+          key: ${{ runner.os }}-xcode_${{ matrix.xcode }}-swiftpm-deps-${{ github.workspace }}-${{ hashFiles('Package.resolved') }}
+          restore-keys: |
+            ${{ runner.os }}-xcode_${{ matrix.xcode }}-swiftpm-deps-${{ github.workspace }}
+
+      - name: SwiftPM tests
+        run: swift test --enable-code-coverage
+
+      - name: Convert coverage to lcov
+        run: xcrun llvm-cov export -format="lcov" .build/debug/PersistPackageTests.xctest/Contents/MacOS/PersistPackageTests -instr-profile .build/debug/codecov/default.profdata > coverage.lcov
+
+      - name: Upload coverage to Codecov
+        uses: codecov/codecov-action@v3
+        with:
+          fail_ci_if_error: true
+
+  ios_tests:
+    name: ${{ matrix.platform }} Tests (Xcode)
+    runs-on: macos-latest
+    strategy:
+      fail-fast: false
+      matrix:
+        xcode: ["13.3.1"]
+        platform: ["iOS"]
+
+    steps:
+      - uses: actions/checkout@v3
+
+      - name: Select Xcode ${{ matrix.xcode }}
+        run: sudo xcode-select --switch /Applications/Xcode_${{ matrix.xcode }}.app
+
+      - name: Generate Sources
+        run: sh build.sh
+
+      - name: Cache SwiftPM
+        uses: actions/cache@v3
+        with:
+          path: CIDependencies/.build
+          key: ${{ runner.os }}-xcode_${{ matrix.xcode }}-swiftpm-ci-deps-${{ github.workspace }}-${{ hashFiles('CIDependencies/Package.resolved') }}
+          restore-keys: |
+            ${{ runner.os }}-xcode_${{ matrix.xcode }}-swiftpm-ci-deps-${{ github.workspace }}
+
+      - name: Cache DerivedData
+        uses: actions/cache@v3
+        with:
+          path: ~/Library/Developer/Xcode/DerivedData
+          key: ${{ runner.os }}-${{ matrix.platform }}_derived_data-xcode_${{ matrix.xcode }}
+          restore-keys: |
+            ${{ runner.os }}-${{ matrix.platform }}_derived_data
+
+      - name: Run Tests
+        run: swift run --configuration release --skip-update --package-path ./CIDependencies/ xcutils test ${{ matrix.platform }} --scheme Persist --enable-code-coverage
+
+      - name: Upload coverage to Codecov
+        uses: codecov/codecov-action@v3
+        with:
+          fail_ci_if_error: true

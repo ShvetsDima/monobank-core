@@ -1,0 +1,36 @@
+name: Test
+
+on:
+  push:
+    branches: [ develop, master ]
+  pull_request:
+    branches: [ develop, master ]
+
+jobs:
+  tests:
+    name: Tests
+    runs-on: macos-latest
+    strategy:
+      fail-fast: false
+      matrix:
+        xcode: ["13.2.1"]
+
+    steps:
+      - uses: actions/checkout@v3
+
+      - name: Select Xcode ${{ matrix.xcode }}
+        run: sudo xcode-select --switch /Applications/Xcode_${{ matrix.xcode }}.app
+
+      - name: Generate Sources
+        run: sh build.sh
+
+      - name: Cache SwiftPM
+        uses: actions/cache@v3
+        with:
+          path: .build
+          key: ${{ runner.os }}-xcode_${{ matrix.xcode }}-swiftpm-deps-${{ github.workspace }}-${{ hashFiles('Package.resolved') }}
+          restore-keys: |
+            ${{ runner.os }}-xcode_${{ matrix.xcode }}-swiftpm-deps-${{ github.workspace }}
+
+      - name: SwiftPM tests
+        run: swift test --enable-code-coverage

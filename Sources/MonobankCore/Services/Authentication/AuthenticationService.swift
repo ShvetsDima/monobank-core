@@ -18,6 +18,6 @@ final class AuthenticationService: AuthenticationUseCase {
     var authenticationURL: URL { context.environment.baseURL }
     
     func authenticateWith(_ token: String) {
-        context.keychain.set(value: token, for: context.environment.tokenKey)
+		context.keychain.set(value: token, for: KeychainService.Key.token.rawValue)
     }
 }

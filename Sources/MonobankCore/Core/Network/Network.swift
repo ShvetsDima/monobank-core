@@ -14,7 +14,7 @@ final class Network {
     private let environment: Environment
     private let plugins: [PluginType]
     
-    init(environment: Environment, keychain: KeychainService) {
+    init(environment: Environment, keychain: KeychainStorage) {
         self.environment = environment
         self.plugins = [AuthPlugin(keychain, environment), LogPlugin()]
     }
